@@ -46,6 +46,7 @@ my $builder = $class->new(
         'Catalyst::Action::RenderView'                 => '0',
         'Catalyst::Plugin::StackTrace'                 => '0',
         'Catalyst::Controller'                         => '0',
+        'Catalyst::Controller::REST'                   => '0',
         'Catalyst::Controller::DBIC::API::RPC'         => '0',
         'Catalyst::Model'                              => '0',
         'Catalyst::Model::Adaptor'                     => '0',
@@ -66,6 +67,7 @@ my $builder = $class->new(
         'Moose'                                        => '0',
         'Moose::Role'                                  => '0',
         'namespace::autoclean'                         => '0',
+        'Params::Validate'                             => '0',
         'Readonly'                                     => '0',
         'strict'                                       => '0',
         'warnings'                                     => '0',
@@ -111,8 +113,11 @@ my $builder = $class->new(
    },
 );
 
-$builder->install_path('seqqc' => join q[/], $builder->install_base(), 'seqqc');
+
 $builder->add_build_element('seqqc');
+if ($builder->install_base()) {
+  $builder->install_path('seqqc' => join q[/], $builder->install_base(), 'seqqc');
+}
 
 $builder->create_build_script();
 

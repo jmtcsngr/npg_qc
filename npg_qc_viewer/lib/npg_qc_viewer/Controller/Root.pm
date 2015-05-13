@@ -6,7 +6,7 @@ use Try::Tiny;
 
 BEGIN { extends 'Catalyst::Controller' }
 
-with 'npg_qc_viewer::api::error';
+with 'npg_qc_viewer::Util::Error';
 
 our $VERSION  = '0';
 ## no critic (Documentation::RequirePodAtEnd Subroutines::ProhibitBuiltinHomonyms)
@@ -155,7 +155,7 @@ sub authorise {
     if (@roles) {
         my $all_roles = join q[,], @roles;
         $c->log->debug(qq[asked to authorised against $all_roles]);
-        my $logged_user = $c->user->id;
+        my $logged_user = $c->user->username;
         if ( !$c->check_user_roles(@roles) ) {
             $self->raise_error(
               qq[User $logged_user is not a member of $all_roles], $UNAUTHORISED_CODE);
