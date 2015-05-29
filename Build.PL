@@ -5,32 +5,104 @@ use npg_tracking::util::build;
 my $class = npg_tracking::util::build->subclass(code => <<'EOF');
 
   use File::Path qw(make_path remove_tree);
+  use File::Which qw(which);
+  use Cwd qw(abs_path);
+  use File::Basename;
 
-  my $blibr              = q[blib/lib/R];
-  my $norm_fit_dir       = join(q[/], 'src', 'norm_fit');
-  my $norm_fit_build_dir = join(q[/], $norm_fit_dir, 'build');
-  my $gt_utils_dir       = join(q[/], 'src', 'gt_utils');
-  my $gt_utils_build_dir = join(q[/], $gt_utils_dir, 'build');
+  my $c_tools = {
+    'norm_fit' => {
+      'copy'     => [qw/norm_fit/],
+                  },
+    'gt_utils' => {
+      'copy'     => [qw/find_gt_match gt_pack/],
+                  },
+    'fastq_summ' => {
+      'copy'     => [qw/fastq_summ/],
+      'samtools' => 1,
+                  },
+  };
+
+  sub _c_build_dir {
+    return join(q[/], 'src', shift, 'build');
+  }
+
+  sub _c_src_dir {
+    return join(q[/], 'src', shift);
+  }
+
+  sub _samtools_option {
+    my $self = shift;
+
+    my @found = which('samtools1');
+    my $samtools = @found ? abs_path( $found[0] ) : q[];
+    @found = which('htsfile');
+    my $hts = @found ? abs_path( $found[0] ) : q[];
+    my $pkgs = [];
+    if ($samtools && $hts) {
+      foreach my $p (($samtools, $hts)) {
+        $p = dirname $p;
+        if ( $p =~ m{/bin\Z}smx ) {
+          $p = dirname $p;
+        }
+        if ($self->verbose) {
+          warn "Found $p\n";
+        }
+        push @{$pkgs}, $p;
+        $samtools = 'SAMTOOLS_LOC=' . $samtools;
+      }
+      $pkgs->[0] = 'SAMTOOLS_LOC=' . $pkgs->[0];
+      $pkgs->[1] = 'HTSLIB_LOC='   . $pkgs->[1];
+    }
+
+    return $pkgs;
+  }
 
   sub ACTION_build {
     my $self = shift;
     $self->SUPER::ACTION_build;
 
     if (!$ENV{'NPG_QC_WEB_INSTALL'}) {
-      make_path $norm_fit_build_dir;
-      `make --directory $norm_fit_dir`;
-      $self->copy_if_modified(from    => "$norm_fit_build_dir/norm_fit",
-                            to_dir  => join(q[/], $self->base_dir, 'blib', 'script'),
-                            flatten => 1);
 
-      make_path $gt_utils_build_dir;
-      `make --directory $gt_utils_dir`;
-      $self->copy_if_modified(from    => "$gt_utils_build_dir/gt_pack",
-                            to_dir  => join(q[/], $self->base_dir, 'blib', 'script'),
-                            flatten => 1);
-      $self->copy_if_modified(from    => "$gt_utils_build_dir/find_gt_match",
-                            to_dir  => join(q[/], $self->base_dir, 'blib', 'script'),
-                            flatten => 1);
+      # Build C executables
+      foreach my $tool ( keys %{$c_tools} ) {
+        if ($self->verbose) {
+          warn "Building $tool\n";
+        }
+        my $bdir = _c_build_dir($tool);
+        make_path $bdir;
+        my $silent = $self->verbose ? q[] : '--silent';
+        my $extra_info = q[];
+        
+        if ($c_tools->{$tool}->{'samtools'}) {
+          my @pkgs = @{$self->_samtools_option()};
+          if (!@pkgs) {
+            warn 'Samtools and/or hts executables are not on the path, ' .
+                 "skipping $tool build\n";
+            next;
+          }
+          $extra_info = join q[ ], @pkgs;
+        }
+
+        my $command = sprintf 'make %s --directory %s %s',
+                      $silent, _c_src_dir($tool), $extra_info;
+        if (system $command) {
+          die "Failed to compile $ename";
+        }
+        foreach my $ename ( @{$c_tools->{$tool}->{'copy'}} ) {
+          if ($self->verbose) {
+            warn "Copying $ename for $tool\n";
+          }
+          $self->copy_if_modified(
+            from    => join(q[/], $bdir, $ename),
+            to_dir  => join(q[/], $self->base_dir, 'blib', 'script'),
+            flatten => 1);
+        }
+      }
+      
+      # Build R script
+      $self->copy_if_modified(from    => 'lib/R/gc_bias_data.R',
+                              to_dir  => join(q[/], $self->base_dir, 'blib', 'lib/R'),
+                              flatten => 1);
     }
   }
 
@@ -39,21 +111,15 @@ my $class = npg_tracking::util::build->subclass(code => <<'EOF');
     $self->SUPER::ACTION_clean;
 
     if (!$ENV{'NPG_QC_WEB_INSTALL'}) {
-      `make clean --directory $norm_fit_dir`;
-      remove_tree $norm_fit_build_dir;
-
-      `make clean --directory $gt_utils_dir`;
-      remove_tree $gt_utils_build_dir;
+      foreach my $tool ( keys %{$c_tools} ) {
+        if ($self->verbose) {
+          warn "Cleaning $tool\n";
+        }
+        my $silent = $self->verbose ? q[] : '--silent';
+        system "make clean $silent --directory " . _c_src_dir($tool);
+        remove_tree _c_build_dir($tool);
+      }
     }
-  }
-
-  sub ACTION_install {
-    my $self = shift;
-    if (!$ENV{'NPG_QC_WEB_INSTALL'}) {
-      `mkdir -p $blibr`;
-      `cp -vu lib/R/gc_bias_data.R $blibr`;
-    }
-    $self->SUPER::ACTION_install;
   }
 
   sub ACTION_webinstall {
@@ -175,6 +241,7 @@ my $extended_requires = {
                 'npg_tracking::illumina::run::folder'      => 0,
                 'npg_tracking::illumina::run::short_info'  => 0,
                 'npg_tracking::illumina::run::long_info'   => 0,
+                'npg_tracking::util::abs_path'             => 0,
                 'npg_tracking::util::types'                => 0,
                 'st::api::base'                            => 0,
                 'st::api::lims'                            => 0,
@@ -185,6 +252,9 @@ my $build_requires = {
                 'Test::Exception'                 => '0.27',
                 'Test::More'                      => '0.86',
                 'File::Path'                      => 0,
+                'File::Which'                     => 0,
+                'Cwd'                             => 0,
+                'File::Basename'                  => 0,
                 'HTML::PullParser'                => '3.57',
                 'YAML'                            => '0.68',
                 'IO::Scalar'                      => 0,
