@@ -1,5 +1,45 @@
 LIST OF CHANGES FOR NPG-QC PACKAGE
 
+release 58.6
+ - Using "jquery-unveil" plugin for heatmaps
+ - Removing data from DOM after passing them to local variables
+ - Nulling variables after using them for bcviz to free memory
+ - Moved simplified file name generation to this package
+ - Removing gc bias and qX Yield checks when looking at non-run views
+ - Removing collapser
+ - Using latest release of bcviz (1.2.1)
+
+release 58.5
+ - stop using depricated Class::MOP::load_class method
+ - use namespace::autoclean instead of "no Moose" in Moose objects
+ - using make_immutable in Moose objects
+
+release 58.4
+ - Creating a cache in SeqStore model to reduce file system access. 
+    Improving query - using keys for tables.
+ - Moving FileFinder functionality into SeqQC from seq_commons.
+ - Cache of catalyst actions and uri in template.
+ - Templates are configured to be checked for changes every 10 hours.
+ - Connections to database for fastqcheck are passed to model from 
+    template.
+ - Test modules catch/test for warnings for unitilized ids and for 
+    cases where it was not possible to locate a folder.
+
+release 58.3.1
+ - Updating Readme in npg_qc_viewer for changes in deploy procedure.
+ - Fixing qXYield total for run and sample, now it calculates from actual values 
+    in the table, does not recalculate from collection.
+ - genotype check: reduce min_sample_call_rate parameter for genotype match from 95% to 75%, and
+     min_common_snps from 21 to 20. This will allow (Fluidigm) qc genotypes with 20 calls to be
+    identified as possible duplicates when using the standard set of 26 QC SNPS (W30467)
+
+release 58.3
+ - default autoqc result object creation - do not set tag index to undef to
+   avoid this field being set when serializing to json with newer Moose
+
+release 58.2
+ - convert local path to nfs for linked tools when building fastq_summ
+
 release 58.1
  - compile fastq_summ with samtools-1.2 and htslib-1.2.1
  - Removing global functions from manual_qc.js
@@ -9,6 +49,7 @@ release 58.1
     - to allow specification of iRODS zone with an environment variable
     - perlcritic issues and version strings
  - gt_pack recognises version 02 headers in append mode
+ - DBIx binding generation - keep column name case when generating accessors
 
 release 58.0
  - skip running legacy gcbias if window_depth not available

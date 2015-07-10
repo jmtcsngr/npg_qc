@@ -18,6 +18,7 @@ lib/npg_qc_viewer/Model/WarehouseDB.pm
 lib/npg_qc_viewer/Model/Visuals/Fastqcheck.pm
 lib/npg_qc_viewer/Util/Error.pm
 lib/npg_qc_viewer/Util/ExtendedHttpStatus.pm
+lib/npg_qc_viewer/Util/FileFinder.pm
 lib/npg_qc_viewer.pm
 lib/npg_qc_viewer/View/TT.pm
 MANIFEST
@@ -48,16 +49,12 @@ root/src/ui_checks/split_stats.tt2
 root/src/ui_checks/tag_decode_stats.tt2
 root/src/ui_checks/tag_metrics.tt2
 root/src/ui_lanes/checks_header.tt2
-root/src/ui_lanes/collapse_menu.tt2
-root/src/ui_lanes/lanes_total.tt2
 root/src/ui_lanes/lane.tt2
 root/src/ui_lanes/library_lanes.tt2
 root/src/ui_runs/annotations.tt2
 root/src/ui_runs/run_menu.tt2
 root/static/bower.json
 root/static/.bowerrc
-root/static/images/blue_collapse.png
-root/static/images/blue_expand.png
 root/static/images/btn_120x50_built.png
 root/static/images/btn_120x50_built_shadow.png
 root/static/images/btn_120x50_powered.png
@@ -76,7 +73,6 @@ root/static/images/tick.png
 root/static/images/to_children.png
 root/static/images/to_parent.png
 root/static/images/waiting.gif
-root/static/scripts/collapse.js
 root/static/scripts/main.js
 root/static/scripts/manual_qc.js
 root/static/stylesheets/npg_seqqc.css
@@ -94,10 +90,11 @@ t/00-critic.t
 t/00-distribution.t
 t/00-podcoverage.t
 t/00-pod.t
-t/10-util-Error.t
 t/10-authentication-SangerSSOnpg.t
 t/10-controller-AjaxProxy.t
 t/10-npg_tracking-daemon-seqqc.t
+t/10-util-Error.t
+t/10-util-FileFinder.t
 t/20-model-Check.t
 t/20-model-NpgDB.t
 t/20-model-NpgQcDB.t
@@ -120,7 +117,6 @@ t/50-template-ui_checks-insert_size.t
 t/50-template-ui_checks-qX_yield.t
 t/50-template-ui_checks-split_stats.t
 t/50-template-ui_checks-tag_decode_stats.t
-t/50-template-ui_lanes-lanes_total.t
 t/50-template-ui_lanes-lane.t
 t/50-template-ui_lanes-library_lanes.t
 t/70-view_TT.t

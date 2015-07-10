@@ -8,6 +8,7 @@ package npg_qc::autoqc::checks::genotype;
 use strict;
 use warnings;
 use Moose;
+use namespace::autoclean;
 use Carp;
 use File::Basename;
 use File::Spec::Functions qw(catfile catdir);
@@ -39,10 +40,10 @@ Readonly::Scalar our $EXT => q[bam];
 Readonly::Scalar my $SEQUENOM_QC_PLEX => q[W30467];
 Readonly::Scalar my $DEFAULT_QC_PLEX => q[sequenom_fluidigm_combo];
 Readonly::Scalar my $DEFAULT_SNP_CALL_SET => q[W30467];
-Readonly::Scalar my $DEFAULT_MIN_COMMON_SNPS => 21;
+Readonly::Scalar my $DEFAULT_MIN_COMMON_SNPS => 18;
 Readonly::Scalar my $DEFAULT_RELIABLE_READ_DEPTH => 5;
 Readonly::Scalar my $DEFAULT_POSS_DUP_LEVEL => 95;
-Readonly::Scalar my $DEFAULT_MIN_SAMPLE_CALL_RATE => 95;
+Readonly::Scalar my $DEFAULT_MIN_SAMPLE_CALL_RATE => 75;
 Readonly::Scalar my $MATCH_PASS_THRESHOLD => 0.95;
 Readonly::Scalar my $MATCH_FAIL_THRESHOLD => 0.50;
 Readonly::Scalar my $MAX_ALT_MATCHES => 4;
@@ -650,7 +651,6 @@ sub _build__ref_to_snppos_suffix_map {
 	}
 }
 
-no Moose;
 __PACKAGE__->meta->make_immutable();
 
 
@@ -689,6 +689,12 @@ npg_qc::autoqc::checks::genotype - compare genotype from bam with Sequenom QC re
 =head1 BUGS AND LIMITATIONS
 
 =head1 DEPENDENCIES
+
+=over
+
+=item namespace::autoclean
+
+=back
 
 =head1 AUTHOR
 

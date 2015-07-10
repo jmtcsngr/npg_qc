@@ -1,13 +1,10 @@
-#########
-# Author:        Marina Gourtovaia
-# Created:       29 July 2009
-#
-
 package npg_qc::autoqc::checks::check;
 
 use Moose;
+use namespace::autoclean;
 use MooseX::ClassAttribute;
 use MooseX::Aliases;
+use Class::Load qw(load_class);
 use Carp;
 use English qw(-no_match_vars);
 use File::Basename;
@@ -156,14 +153,17 @@ sub _build_result {
     my ($ref) = ($pkg_name) =~ /(\w*)$/smx;
     if ($ref eq q[check]) { $ref =  q[result]; }
     my $module = "npg_qc::autoqc::results::$ref";
-    Class::MOP::load_class($module);
+    load_class($module);
 
-    my $result = $module->new(
-                    id_run    => $self->id_run,
-                    position  => $self->position,
-                    path      => $self->path,
-                    tag_index => $self->tag_index
-                             );
+    my $nref = { id_run => $self->id_run, position  => $self->position, };
+    $nref->{'path'} = $self->path;
+    if (defined $self->tag_index) {
+      # In newish Moose undefined but set tag index is serialized to json,
+      # which is not good for result objects that do hot have tag_index db column
+      $nref->{'tag_index'} = $self->tag_index;
+    }
+    my $result = $module->new($nref);
+
     $result->set_info('Check', $pkg_name);
     $result->set_info('Check_version', $module_version);
     if ($result->can(q[sequence_type])) {
@@ -275,7 +275,7 @@ sub overall_pass {
 }
 
 no MooseX::ClassAttribute;
-no Moose;
+__PACKAGE__->meta->make_immutable;
 
 1;
 __END__
@@ -290,7 +290,13 @@ __END__
 
 =item Moose
 
+=item namespace::autoclean
+
 =item MooseX::ClassAttribute
+
+=item MooseX::Aliases
+
+=item Class::Load
 
 =item Carp
 
@@ -320,7 +326,7 @@ Marina Gourtovaia E<lt>mg8@sanger.ac.ukE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2010 GRL, by Marina Gourtovaia
+Copyright (C) 2015 GRL, by Marina Gourtovaia
 
 This file is part of NPG.
 
