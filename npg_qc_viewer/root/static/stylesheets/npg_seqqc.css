@@ -376,6 +376,10 @@ a, a:link, a:visited, a:hover {
   color: #476080; 
 }
 
+.light_grey {
+  color: #efefef; 
+}
+
 .insert_size_histogram {
   padding-left: 10px;
 }
