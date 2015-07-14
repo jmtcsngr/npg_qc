@@ -34,7 +34,7 @@
        IF pcount != '0.0' && pcount != '0.1';
     - %]
     <tr>
-      <td><span class="light_grey">[% organism | replace('_', ' ') %]</span> [% check.reference_version.item(organism) %]</td>
+      <td><span class="dark_blue">[% organism | replace('_', ' ') %]</span> [% check.reference_version.item(organism) %]</td>
       <td class="raligned">[% check.aligned_read_count.item(organism) | format_number %]</td>
       <td class="raligned">[% pcount %]</td>
     </tr>
