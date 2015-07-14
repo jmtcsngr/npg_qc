@@ -376,8 +376,13 @@ a, a:link, a:visited, a:hover {
   color: #476080; 
 }
 
-.light_blue {
+span.toggling_blue {
+	/*Light blue*/
   color: #b5daff; 
+}
+span.toggling_blue:hover {
+	/*Dark blue*/
+	color: #476080;
 }
 
 .insert_size_histogram {

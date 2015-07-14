@@ -143,7 +143,7 @@
         padding = ' ';
         IF match < 10; padding = '  '; END;
 -%]
-<br /><span class="nbsp light_blue">[% ranked_orgs.1 | replace('_', ' ') %]:[% padding %][% match %]</span>
+<br /><span class="nbsp toggling_blue">[% ranked_orgs.1 | replace('_', ' ') %]:[% padding %][% match %]</span>
 [%-   END -%]
 
 
