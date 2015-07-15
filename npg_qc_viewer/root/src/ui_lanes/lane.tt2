@@ -190,7 +190,7 @@
  [% END %]
 <span title="Number of reads in tag#0 BAM file (%age of total reads for the lane)"><a href="[% href %]">[% result.total_tag0_reads | format_number -%] ([% FILTER format('%4.2f'); pctage_total_tag0_reads; END %])</a></span>
 <br/>
-<span title="Number of reads in tag#0 BAM file which perfectly match a Sanger168 tag (%age of total reads for the lane)"><a href="[% href %]">[% result.tag0_perfect_match_reads | format_number -%] ([% FILTER format('%4.2f'); pctage_tag0_perfect_match_reads; END %])</a></span>
+<span title="Number of reads in tag#0 BAM file which perfectly match a Sanger168 tag (%age of total reads for the lane)"><a href="[% href %]">[% result.tag0_perfect_match_reads | format_number -%] ([% FILTER format('%4.2f'); pctage_tag0_perfect_match_reads; END %])</a> [%- IF run_view && pctage_tag0_perfect_match_reads >= 0.1; -%] &diams; [%- END; -%] </span>
 [%- END -%]
 [%- END -%]
 
