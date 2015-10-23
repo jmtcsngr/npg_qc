@@ -20,12 +20,13 @@ sub get_outcomes_as_hash{
   }
   #Loading previuos status qc for tracking and mqc.
   my $previous_mqc = {};
-  my $previous_rs = $self->search({
-    'id_run'   => $id_run,
-    'position' => $position
-  });
+  my $values = {};
+  $values->{'id_run'}   = $id_run;
+  $values->{'position'} = $position;
+  my $previous_rs = $self->search($values);
   while (my $obj = $previous_rs->next) {
-    $previous_mqc->{$obj->tag_index} = $obj->mqc_outcome->short_desc; #TODO tag_index = undef?
+    my $tag_index = $obj->tag_index || q[];
+    $previous_mqc->{$tag_index} = $obj->mqc_outcome->short_desc;
   }
   return $previous_mqc;
 }
@@ -65,11 +66,10 @@ sub fetch_mqc_library_outcomes {
   if(!defined $position) {
     croak q[Mandatory parameter 'position' missing in call];
   }
-
-  my $rs1 = $self->search({
-    'id_run' => $id_run,
-    'position' => $position,
-  });
+  my $values = {};
+  $values->{'id_run'}   = $id_run;
+  $values->{'position'} = $position;
+  my $rs1 = $self->search($values);
   return $rs1;
 }
 
