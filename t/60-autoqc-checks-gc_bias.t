@@ -5,9 +5,10 @@ use Test::Exception;
 use Cwd qw/getcwd/;
 use File::Temp qw/tempdir/;
 
+use npg_tracking::util::abs_path qw(abs_path);
 use t::autoqc_util qw/write_samtools_script/;
 
-my $repos = getcwd . '/t/data/autoqc';
+my $repos = abs_path(getcwd . '/t/data/autoqc');
 
 use_ok('npg_qc::autoqc::checks::gc_bias');
 
