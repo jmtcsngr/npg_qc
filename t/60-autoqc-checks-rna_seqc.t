@@ -1,9 +1,11 @@
 use strict;
 use warnings;
-use Cwd qw/getcwd abs_path/;
+use Cwd qw/getcwd/;
 use Test::More tests => 17;
 use Test::Exception;
 use File::Temp qw/ tempdir /;
+
+use npg_tracking::util::abs_path qw(abs_path);
 
 use_ok ('npg_qc::autoqc::checks::rna_seqc');
 $ENV{no_proxy} = '';
@@ -15,7 +17,7 @@ local $ENV{'NPG_CACHED_SAMPLESHEET_FILE'} = q[t/data/autoqc/rna_seqc/samplesheet
 local $ENV{CLASSPATH} = $dir;
 local $ENV{PATH} = join q[:], $dir, $ENV{PATH};
 
-my $repos = getcwd . '/t/data/autoqc/rna_seqc';
+my $repos = abs_path(getcwd . '/t/data/autoqc/rna_seqc');
 
 `touch $dir/RNA-SeQC.jar`;
 
