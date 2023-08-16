@@ -1,5 +1,7 @@
 LIST OF CHANGES FOR NPG-QC PACKAGE
 
+ - add perl v5.34.0 to CI matrix
+
 release 71.0.0
  - Removed the plugin that enable to run the SeqQC server under the
    daemon utility. 
