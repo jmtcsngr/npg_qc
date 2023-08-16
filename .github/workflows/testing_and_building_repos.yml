@@ -33,6 +33,7 @@ jobs:
     - name: Initialize Miniconda
       run: |
           echo 'source $CONDA/etc/profile.d/conda.sh' >> "$HOME/.bash_profile"
+          perl --version
 
     # Caching conda
     - name: Cache conda
