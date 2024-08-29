@@ -12,7 +12,7 @@ components are from the same run and are for the same tag index. Use any lane
 number (position) that went into the merged product. For example, for a product
 described by JSON below
 
-```
+```json
 {
   "__CLASS__": "npg_tracking::glossary::composition-101.3.0",
   "components": [
