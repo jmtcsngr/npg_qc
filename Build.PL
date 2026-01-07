@@ -2,6 +2,19 @@ use strict;
 use warnings;
 use WTSI::DNAP::Utilities::Build;
 
+my $class = WTSI::DNAP::Utilities::Build->subclass(code => <<'EOF');
+  sub process_wtsi_local_files {
+    my $self = shift;
+    foreach my $file ( @{$self->rscan_dir('wtsi_local', sub {-f $_})} ) {
+      $self->copy_if_modified(
+        from => $file,
+        to_dir  => join(q[/], $self->base_dir(), $self->blib()),
+        flatten => 0);
+    }
+    return;
+  }
+EOF
+
 my $requires = {
                 'autodie'                         => 0,
                 'base'                            => 0,
@@ -130,7 +143,7 @@ my $build_requires = {
                 'npg_testing::db'                 => 0
 };
 
-my $builder = WTSI::DNAP::Utilities::Build->new(
+my $builder = $class->new(
 
                 'module_name'         => 'npg_qc',
                 'dist_author'         => q(wtsi-npg <npg@sanger.ac.uk>),
@@ -147,6 +160,15 @@ my $builder = WTSI::DNAP::Utilities::Build->new(
 
           'dist'          => { COMPRESS => 'gzip', SUFFIX => 'gz', },
          );
+
+# Process apache configuration files
+my $path = 'wtsi_local';
+my $name = $path;
+$name =~ s/-//;
+$builder->add_build_element($name);
+if ($builder->install_base()) {
+  $builder->install_path($path => join q{/}, $builder->install_base(), $path);
+}
 
 $builder->create_build_script();
 
